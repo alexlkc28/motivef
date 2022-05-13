@@ -14,8 +14,9 @@ class SaleOrderLine(models.Model):
 
     @api.depends('sequence', 'order_id')
     def _compute_item_sequence(self):
-        for order in self.mapped('order_id'):
-            number = 1
-            for line in order.order_line:
-                line.number = number
-                number += 1
+        for record in self:
+            for order in record.mapped('order_id'):
+                number = 1
+                for line in order.order_line:
+                    line.sequence = number
+                    number += 1
