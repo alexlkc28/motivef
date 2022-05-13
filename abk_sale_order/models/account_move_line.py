@@ -17,6 +17,6 @@ class AccountMoveLine(models.Model):
         for record in self:
             for move in record.mapped('move_id'):
                 number = 1
-                for line in move.move_line:
+                for line in move.invoice_line_ids:
                     line.sequence = number
                     number += 1
