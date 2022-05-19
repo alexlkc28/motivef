@@ -23,7 +23,8 @@ class ABKIRActionReport(models.Model):
             for line in so.order_line:
                 pdf_file = line.product_id.product_tmpl_id.product_specification
                 if pdf_file:
-                    file_reader = PdfFileReader(pdf_file)
+                    f = io.BytesIO(pdf_file)
+                    file_reader = PdfFileReader(f)
                     for page_num in range(file_reader.numPages):
                         page_obj = file_reader.getPage(page_num)
                         writer.addPage(page_obj)
