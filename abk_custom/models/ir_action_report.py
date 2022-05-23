@@ -19,7 +19,7 @@ class ABKIRActionReport(models.Model):
             reader = PdfFileReader(reader_buffer)
 
             writer = PdfFileWriter()
-            writer.cloneReaderDocumentRoot(reader)
+            # writer.cloneReaderDocumentRoot(reader)
 
             so = self.env['sale.order'].browse(res_ids)
             for line in so.order_line:
@@ -37,5 +37,5 @@ class ABKIRActionReport(models.Model):
 
             reader_buffer.close()
             buffer.close()
-        _logger.info(pdf_content)
+
         return super(ABKIRActionReport, self)._post_pdf(save_in_attachment, pdf_content=pdf_content, res_ids=res_ids)
