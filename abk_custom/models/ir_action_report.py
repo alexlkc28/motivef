@@ -19,7 +19,7 @@ class ABKIRActionReport(models.Model):
             reader = PdfFileReader(reader_buffer)
 
             writer = PdfFileWriter()
-            # writer.cloneReaderDocumentRoot(reader)
+            writer.appendPagesFromReader(reader)
 
             so = self.env['sale.order'].browse(res_ids)
             for line in so.order_line:
