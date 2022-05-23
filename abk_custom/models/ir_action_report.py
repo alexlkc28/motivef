@@ -17,6 +17,7 @@ class ABKIRActionReport(models.Model):
         if self.model == 'sale.order' and res_ids and len(res_ids) == 1:
             reader_buffer = io.BytesIO(pdf_content)
             reader = PdfFileReader(reader_buffer)
+
             writer = PdfFileWriter()
             writer.cloneReaderDocumentRoot(reader)
 
@@ -26,10 +27,9 @@ class ABKIRActionReport(models.Model):
                 if pdf_file:
                     file_reader = PdfFileReader(io.BytesIO(base64.b64decode(pdf_file)), strict=False,
                                                 overwriteWarnings=False)
-                    for page_num in range(file_reader.numPages):
+                    for page_num in range(0, file_reader.getNumPages()):
                         page_obj = file_reader.getPage(page_num)
                         writer.addPage(page_obj)
-                        _logger.info('ADD PAGE -------------------------------------------------------')
 
             buffer = io.BytesIO()
             writer.write(buffer)
@@ -37,5 +37,5 @@ class ABKIRActionReport(models.Model):
 
             reader_buffer.close()
             buffer.close()
-
-        return super(ABKIRActionReport, self)._post_pdf(save_in_attachment, pdf_content, res_ids)
+        _logger.info(pdf_content)
+        return super(ABKIRActionReport, self)._post_pdf(save_in_attachment, pdf_content=pdf_content, res_ids=res_ids)
