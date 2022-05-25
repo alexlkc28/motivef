@@ -30,4 +30,4 @@ class AccountMoveLine(models.Model):
                     subline.sequence = number
                     number += 1
 
-        return super(AccountMoveLine, self)._onchange_product_id()
+        return super()._onchange_product_id()
