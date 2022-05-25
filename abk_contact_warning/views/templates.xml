@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+        <record id="view_contacts_form_abk_contact_waring" model="ir.ui.view">
+            <field name="name">res.partner.form.abk.contact.warning</field>
+            <field name="model">res.partner</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="before">
+                    <field name="same_contact_partner_id" invisible="1"/>
+                    <div class="alert alert-warning text-center" role="alert" attrs="{'invisible': [('same_contact_partner_id', '=', False)]}">
+                        Duplicate Contact
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
