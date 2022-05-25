@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, api, _, fields
+from odoo.tools.misc import get_lang
 
 import logging
 
@@ -20,3 +21,14 @@ class SaleOrderLine(models.Model):
                 for line in order.order_line:
                     line.sequence = number
                     number += 1
+
+    @api.onchange('product_id')
+    def product_id_change(self):
+        for record in self:
+            for order in record.mapped('order_id'):
+                number = 0
+                for line in order.order_line:
+                    line.sequence = number
+                    number += 1
+
+        return super(SaleOrderLine, self).product_id_change()
