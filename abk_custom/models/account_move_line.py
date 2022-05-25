@@ -22,6 +22,8 @@ class AccountMoveLine(models.Model):
                     number += 1
 
     @api.onchange('sequence')
-    def _change_sequence(self):
-        for record in self:
-            record.sequence = 0
+    def on_change_sequence(self):
+        _logger.info('on_change_sequence')
+        for changed_line in self:
+            changed_line.sequence = 0
+        return True
