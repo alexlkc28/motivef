@@ -55,7 +55,7 @@ class AccountMoveLine(models.Model):
                                                            line.move_id.date)
 
             for move in line.mapped('move_id'):
-                number = 1
+                number = 0
                 for subline in move.invoice_line_ids:
                     subline.sequence = number
                     number += 1
