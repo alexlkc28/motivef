@@ -21,13 +21,13 @@ class SaleOrderLine(models.Model):
                     line.sequence = number
                     number += 1
 
-    # @api.onchange('product_id')
-    # def product_id_change(self):
-    #     for record in self:
-    #         for order in record.mapped('order_id'):
-    #             number = 0
-    #             for line in order.order_line:
-    #                 line.sequence = number
-    #                 number += 1
-    #
-    #     return super().product_id_change()
+    @api.onchange('product_id')
+    def product_id_change(self):
+        for record in self:
+            for order in record.mapped('order_id'):
+                number = 0
+                for line in order.order_line:
+                    line.sequence = number
+                    number += 1
+
+        return super().product_id_change()
