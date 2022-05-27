@@ -121,17 +121,20 @@ class UP5OdooQuickBooks(models.Model):
             customer.PrimaryEmailAddr = EmailAddress()
             customer.PrimaryEmailAddr.Address = res_partner.email
 
-        customer.save(qb=client)
-
-        res_partner.write({'quickbooks_id': customer.Id})
-
-        return customer
+        try:
+            customer.save(qb=client)
+            res_partner.write({'quickbooks_id': customer.Id})
+            return customer
+        except QuickbooksException as e:
+            _logger.error('Create Customer: ' + e.message)
+            return None
 
     def create_qb_invoice(self, o_inv):
         client = self.get_client()
 
         # get invoice
         invoice = Invoice()
+        item = Item.all(max_results=1, qb=client)[0]
 
         for inv_line in o_inv.invoice_line_ids:
             line = SalesItemLine()
@@ -142,21 +145,26 @@ class UP5OdooQuickBooks(models.Model):
             line.Amount = inv_line.price_subtotal
 
             line.SalesItemLineDetail = SalesItemLineDetail()
-            item = Item.all(max_results=1, qb=client)[0]
 
             line.SalesItemLineDetail.ItemRef = item.to_ref()
             invoice.Line.append(line)
 
         customer = self.create_or_update_customer(o_inv.partner_id)
+        if not customer:
+            return None
         invoice.CustomerRef = customer.to_ref()
 
         invoice.CustomerMemo = CustomerMemo()
         invoice.CustomerMemo.value = o_inv.partner_id.name
 
         # push
-        invoice.save(qb=client)
-        o_inv.write({'quickbooks_id': invoice.Id})
-        return invoice
+        try:
+            invoice.save(qb=client)
+            o_inv.write({'quickbooks_id': invoice.Id})
+            return invoice
+        except QuickbooksException as e:
+            _logger.error('Create Invoice: ' + e.message)
+            return None
 
     def push_invoices_to_qb(self):
         self.refresh()
