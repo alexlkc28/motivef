@@ -25,6 +25,10 @@ class QBResConfigSettings(models.TransientModel):
 
     qk_redirect_url = fields.Char(string='Redirect Url', config_parameter="qbi.qk_redirect_url")
 
+    qk_income_account = fields.Char('Income Account', store=True, config_parameter="qbi.qk_income_account")
+    qk_expense_account = fields.Char('Expense Account', store=True, config_parameter="qbi.qk_expense_account")
+    qk_asset_account = fields.Char('Asset Account', store=True, config_parameter="qbi.qk_asset_account")
+
     @api.onchange('qk_client_id')
     def _onchange_qk_client_id(self):
         self.qk_redirect_url = self.env['ir.config_parameter'].get_param(

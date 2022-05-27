@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, api, _, fields
+from datetime import date
 
 from intuitlib.client import AuthClient
 from intuitlib.exceptions import AuthClientError
@@ -8,6 +9,7 @@ from intuitlib.exceptions import AuthClientError
 from quickbooks import QuickBooks
 from quickbooks.objects.base import Address, PhoneNumber, EmailAddress, CustomerMemo, Ref
 from quickbooks.objects.customer import Customer
+from quickbooks.objects.account import Account
 from quickbooks.objects.invoice import Invoice
 from quickbooks.objects.item import Item
 from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
@@ -33,7 +35,10 @@ class UP5OdooQuickBooks(models.Model):
             'ACCESS_TOKEN': param.get_param('qbi.qk_access_token') or None,
             'REFRESH_TOKEN': param.get_param('qbi.qk_refresh_token') or None,
             'ID_TOKEN': param.get_param('qbi.qk_id_token') or None,
-            'REDIRECT_URL': param.get_param('web.base.url') + '/quickbooks/oauth-callback/'
+            'REDIRECT_URL': param.get_param('web.base.url') + '/quickbooks/oauth-callback/',
+            'INCOME_ACCOUNT': param.get_param('qbi.qk_income_account') or None,
+            'EXPENSE_ACCOUNT': param.get_param('qbi.qk_expense_account') or None,
+            'ASSET_ACCOUNT': param.get_param('qbi.qk_asset_account') or None,
         }
 
     def set_config(self, key, value):
@@ -146,7 +151,24 @@ class UP5OdooQuickBooks(models.Model):
         item.Name = o_pro.name
         item.Type = "Inventory"
         item.TrackQtyOnHand = False
+        item.QtyOnHand = o_pro.free_qty
         item.Sku = o_pro.code or o_pro.id
+
+        today = date.today()
+        item.InvStartDate = today.strftime("%Y-%m-%d")
+
+        settings = self.get_config()
+        if not settings.get('INCOME_ACCOUNT') or not settings.get('EXPENSE_ACCOUNT') or not settings.get(
+                'ASSET_ACCOUNT'):
+            return None
+
+        income_account = Account.get(settings.get('INCOME_ACCOUNT'), qb=client)
+        expense_account = Account.get(settings.get('EXPENSE_ACCOUNT'), qb=client)
+        asset_account = Account.get(settings.get('ASSET_ACCOUNT'), qb=client)
+
+        item.IncomeAccountRef = income_account.to_ref()
+        item.ExpenseAccountRef = expense_account.to_ref()
+        item.AssetAccountRef = asset_account.to_ref()
 
         _logger.info('Create Item: ' + o_pro.name + ' ' + str(o_pro.id))
         try:
