@@ -154,17 +154,17 @@ class UP5OdooQuickBooks(models.Model):
         str_format = 'Odoo' + "{0:09d}"
         sku = str_format.format(int(o_pro.id))
 
-        qty = int(o_pro.free_qty)
-        if qty <= 0:
-            qty = 10000
+        # item.Name = o_pro.name
+        # item.Type = "Inventory"
+        # item.TrackQtyOnHand = False
+        # item.QtyOnHand = 10000
+        # item.Sku = sku
 
-        item.Name = o_pro.name
         item.Type = "Inventory"
         item.TrackQtyOnHand = True
-        item.QtyOnHand = qty
-        item.Sku = sku
-
-        _logger.info(str(item.QtyOnHand) + '/' + str(item.Sku))
+        item.QtyOnHand = 10
+        item.Sku = "SKU123123"
+        item.InvStartDate = "2015-01-01"
 
         today = date.today()
         item.InvStartDate = today.strftime("%Y-%m-%d")
