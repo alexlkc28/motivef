@@ -5,6 +5,10 @@ from odoo import models, api, _, fields
 from intuitlib.client import AuthClient
 from intuitlib.exceptions import AuthClientError
 
+from quickbooks import QuickBooks
+from quickbooks.objects.customer import Customer
+from quickbooks.objects.invoice import Invoice
+
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -52,3 +56,31 @@ class QuickBooks(models.Model):
 
         self.set_config('qk_access_token', auth_client.access_token)
         self.set_config('qk_refresh_token', auth_client.refresh_token)
+
+    def get_client(self, options=None):
+        settings = self.get_config()
+
+        auth_client = AuthClient(
+            settings.get('CLIENT_ID'),
+            settings.get('CLIENT_SECRET'),
+            settings.get('REDIRECT_URL'),
+            settings.get('ENVIRONMENT'),
+            access_token=settings.get('ACCESS_TOKEN'),
+            refresh_token=settings.get('REFRESH_TOKEN'),
+        )
+
+        return QuickBooks(
+            auth_client=auth_client,
+            refresh_token=settings.get('ACCESS_TOKEN'),
+            company_id=settings.get('REALM_ID'),
+        )
+
+    def get_invoice(self, options=None):
+        client = self.get_client()
+        return Invoice.all(qb=client)
+
+    def update_all_invoices(self):
+        invoices = self.get_invoice()
+        _logger.info(invoices)
+
+        return True
