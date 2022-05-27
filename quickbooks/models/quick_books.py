@@ -155,7 +155,7 @@ class UP5OdooQuickBooks(models.Model):
         item.Type = "Inventory"
         item.TrackQtyOnHand = False
         item.QtyOnHand = int(o_pro.free_qty)
-        item.Sku = str(o_pro.code) or str(o_pro.id)
+        item.Sku = o_pro.id
 
         _logger.info(str(item.QtyOnHand) + '/' + str(item.Sku))
 
