@@ -113,11 +113,13 @@ class UP5OdooQuickBooks(models.Model):
         customer.BillAddr.CountrySubDivisionCode = res_partner.country_id.code
         customer.BillAddr.PostalCode = res_partner.zip
 
-        customer.PrimaryPhone = PhoneNumber()
-        customer.PrimaryPhone.FreeFormNumber = res_partner.phone
+        if res_partner.phone:
+            customer.PrimaryPhone = PhoneNumber()
+            customer.PrimaryPhone.FreeFormNumber = res_partner.phone
 
-        customer.PrimaryEmailAddr = EmailAddress()
-        customer.PrimaryEmailAddr.Address = res_partner.email
+        if res_partner.email:
+            customer.PrimaryEmailAddr = EmailAddress()
+            customer.PrimaryEmailAddr.Address = res_partner.email
 
         customer.save(qb=client)
 
