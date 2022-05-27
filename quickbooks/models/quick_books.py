@@ -94,6 +94,8 @@ class UP5OdooQuickBooks(models.Model):
             _logger.error(e.message)
 
     def create_or_update_customer(self, res_partner):
+        _logger.info('Create Customer: ' + res_partner.name + ' - ' + str(res_partner.id))
+
         client = self.get_client()
 
         if res_partner.quickbooks_id:
@@ -131,7 +133,6 @@ class UP5OdooQuickBooks(models.Model):
             customer.PrimaryEmailAddr.Address = res_partner.email
 
         # push
-        _logger.info('Create Customer: ' + res_partner.name + ' - ' + str(res_partner.id))
         try:
             customer.save(qb=client)
             res_partner.write({'quickbooks_id': customer.Id})
@@ -141,6 +142,8 @@ class UP5OdooQuickBooks(models.Model):
             return None
 
     def create_or_update_item(self, o_pro):
+        _logger.info('Create Item: ' + o_pro.name + ' ' + str(o_pro.id))
+
         client = self.get_client()
 
         if o_pro.quickbooks_id:
@@ -170,7 +173,6 @@ class UP5OdooQuickBooks(models.Model):
         item.ExpenseAccountRef = expense_account.to_ref()
         item.AssetAccountRef = asset_account.to_ref()
 
-        _logger.info('Create Item: ' + o_pro.name + ' ' + str(o_pro.id))
         try:
             item.save(qb=client)
             o_pro.write({'quickbooks_id': item.Id})
@@ -180,6 +182,8 @@ class UP5OdooQuickBooks(models.Model):
             return None
 
     def create_qb_invoice(self, o_inv):
+        _logger.info('Create Invoice: ' + o_inv.name + ' - ' + str(o_inv.id))
+
         client = self.get_client()
 
         # get invoice
@@ -218,7 +222,6 @@ class UP5OdooQuickBooks(models.Model):
         invoice.DocNumber = o_inv.name
 
         # push
-        _logger.info('Create Invoice: ' + o_inv.name + ' - ' + str(o_inv.id))
         try:
             invoice.save(qb=client)
             o_inv.write({'quickbooks_id': invoice.Id})
