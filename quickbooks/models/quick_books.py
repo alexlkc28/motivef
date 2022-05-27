@@ -94,6 +94,10 @@ class UP5OdooQuickBooks(models.Model):
         if res_partner.quickbooks_id:
             return Customer.get(res_partner.quickbooks_id, qb=client)
 
+        customers = Customer.filter(DisplayName=res_partner.display_name, qb=client)
+        for customer in customers:
+            return customer
+
         customer = Customer()
 
         customer.Title = res_partner.name
