@@ -213,7 +213,9 @@ class UP5OdooQuickBooks(models.Model):
         invoice.CustomerRef = customer.to_ref()
 
         invoice.CustomerMemo = CustomerMemo()
-        invoice.CustomerMemo.value = o_inv.partner_id.name
+        invoice.CustomerMemo.value = o_inv.name
+
+        invoice.DocNumber = o_inv.name
 
         # push
         _logger.info('Create Invoice: ' + o_inv.name + ' - ' + str(o_inv.id))
@@ -227,7 +229,7 @@ class UP5OdooQuickBooks(models.Model):
 
     def push_invoices_to_qb(self):
         self.refresh()
-        o_invs = self.env['account.move'].search([('state', '=', 'posted')], limit=2)
+        o_invs = self.env['account.move'].search([('quickbooks_id', '=', None),('state', '=', 'posted')], limit=2)
         for o_inv in o_invs:
             if not o_inv.quickbooks_id:
                 self.create_qb_invoice(o_inv)
