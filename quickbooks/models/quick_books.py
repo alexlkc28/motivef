@@ -137,7 +137,7 @@ class UP5OdooQuickBooks(models.Model):
             customer.save(qb=client)
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
-        except QuickbooksException | Exception as e:
+        except QuickbooksException as e:
             _logger.error('[ERROR] Create Customer: ' + e.message)
             return None
 
@@ -154,17 +154,11 @@ class UP5OdooQuickBooks(models.Model):
         str_format = 'Odoo' + "{0:09d}"
         sku = str_format.format(int(o_pro.id))
 
-        # item.Name = o_pro.name
-        # item.Type = "Inventory"
-        # item.TrackQtyOnHand = False
-        # item.QtyOnHand = 10000
-        # item.Sku = sku
-
+        item.Name = o_pro.name
         item.Type = "Inventory"
-        item.TrackQtyOnHand = True
-        item.QtyOnHand = 10
-        item.Sku = "SKU123123"
-        item.InvStartDate = "2015-01-01"
+        item.TrackQtyOnHand = False
+        item.QtyOnHand = 10000
+        item.Sku = sku
 
         today = date.today()
         item.InvStartDate = today.strftime("%Y-%m-%d")
@@ -186,7 +180,7 @@ class UP5OdooQuickBooks(models.Model):
             item.save(qb=client)
             o_pro.write({'quickbooks_id': item.Id})
             return item
-        except QuickbooksException | Exception as e:
+        except QuickbooksException as e:
             _logger.error('[ERROR] Create Item: ' + e.message)
             return None
 
@@ -235,7 +229,7 @@ class UP5OdooQuickBooks(models.Model):
             invoice.save(qb=client)
             o_inv.write({'quickbooks_id': invoice.Id})
             return invoice
-        except QuickbooksException | Exception as e:
+        except QuickbooksException as e:
             _logger.error('[ERROR] Create Invoice: ' + e.message)
             return None
 
