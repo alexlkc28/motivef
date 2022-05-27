@@ -14,7 +14,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class QuickBooks(models.Model):
+class UP5OdooQuickBooks(models.Model):
     _name = 'quickbooks.quickbooks'
     _description = 'QuickBooks Model'
 
