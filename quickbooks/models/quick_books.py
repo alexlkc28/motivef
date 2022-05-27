@@ -155,7 +155,9 @@ class UP5OdooQuickBooks(models.Model):
         item.Type = "Inventory"
         item.TrackQtyOnHand = False
         item.QtyOnHand = int(o_pro.free_qty)
-        item.Sku = o_pro.code or str(o_pro.id)
+        item.Sku = str(o_pro.code) or str(o_pro.id)
+
+        _logger.info(str(o_pro.free_qty) + '/' + (str(o_pro.code) or str(o_pro.id)))
 
         today = date.today()
         item.InvStartDate = today.strftime("%Y-%m-%d")
@@ -174,7 +176,6 @@ class UP5OdooQuickBooks(models.Model):
         item.AssetAccountRef = asset_account.to_ref()
 
         try:
-            _logger.info('processing----------------------------------')
             item.save(qb=client)
             o_pro.write({'quickbooks_id': item.Id})
             return item
