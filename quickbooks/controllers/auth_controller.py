@@ -2,13 +2,11 @@
 from odoo import http
 
 from intuitlib.client import AuthClient
-from intuitlib.migration import migrate
 from intuitlib.enums import Scopes
 from intuitlib.exceptions import AuthClientError
 
 import werkzeug
 import urllib3
-import json
 import logging
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -16,20 +14,16 @@ _logger = logging.getLogger(__name__)
 
 
 class QuickBooksAuthController(http.Controller):
-    def get_redirect_url(self):
-        return http.request.env['ir.config_parameter'].get_param('web.base.url') + '/quickbooks/oauth-callback/'
-
     @http.route('/quickbooks/oauth-login/', auth='user')
     def login(self, **kwargs):
         _logger.info('___________________________________oauth login')
 
         settings = http.request.env['quickbooks.quickbooks'].get_config()
-        redirect_url = self.get_redirect_url()
 
         auth_client = AuthClient(
             settings.get('CLIENT_ID'),
             settings.get('CLIENT_SECRET'),
-            redirect_url,
+            settings.get('REDIRECT_URL'),
             settings.get('ENVIRONMENT'),
         )
 
@@ -44,12 +38,11 @@ class QuickBooksAuthController(http.Controller):
         qb_env = http.request.env['quickbooks.quickbooks'].sudo()
 
         settings = qb_env.get_config()
-        redirect_url = self.get_redirect_url()
 
         auth_client = AuthClient(
             settings.get('CLIENT_ID'),
             settings.get('CLIENT_SECRET'),
-            redirect_url,
+            settings.get('REDIRECT_URL'),
             settings.get('ENVIRONMENT'),
             state_token=http.request.session.get('state', None),
         )

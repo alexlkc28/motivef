@@ -2,6 +2,9 @@
 
 from odoo import models, api, _, fields
 
+from intuitlib.client import AuthClient
+from intuitlib.exceptions import AuthClientError
+
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -22,9 +25,30 @@ class QuickBooks(models.Model):
             'ACCESS_TOKEN': param.get_param('qbi.qk_access_token') or None,
             'REFRESH_TOKEN': param.get_param('qbi.qk_refresh_token') or None,
             'ID_TOKEN': param.get_param('qbi.qk_id_token') or None,
+            'REDIRECT_URL': param.get_param('web.base.url') + '/quickbooks/oauth-callback/'
         }
 
     def set_config(self, key, value):
         param = self.env['ir.config_parameter'].sudo()
         config_param = 'qbi.' + str(key)
         param.set_param(config_param, value)
+
+    def refresh(self):
+        settings = self.get_config()
+
+        auth_client = AuthClient(
+            settings.get('CLIENT_ID'),
+            settings.get('CLIENT_SECRET'),
+            settings.get('REDIRECT_URL'),
+            settings.get('ENVIRONMENT'),
+            access_token=settings.get('ACCESS_TOKEN'),
+            refresh_token=settings.get('REFRESH_TOKEN'),
+        )
+
+        try:
+            auth_client.refresh()
+        except AuthClientError as e:
+            _logger.info(e)
+
+        self.set_config('qk_access_token', auth_client.access_token)
+        self.set_config('qk_refresh_token', auth_client.refresh_token)
