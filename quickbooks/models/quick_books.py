@@ -175,6 +175,7 @@ class UP5OdooQuickBooks(models.Model):
 
         try:
             item.save(qb=client)
+            _logger.info('Create Item Success: ' + str(item.Id))
             o_pro.write({'quickbooks_id': item.Id})
             return item
         except QuickbooksException | Exception as e:
