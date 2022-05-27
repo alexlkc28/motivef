@@ -23,13 +23,12 @@ class QBResConfigSettings(models.TransientModel):
     qk_id_token = fields.Char(string='ID Token', store=True, config_parameter="qbi.qk_id_token")
     qk_realm_id = fields.Char(string='Realm ID', store=True, config_parameter="qbi.qk_realm_id")
 
-    qk_redirect_url = fields.Char(string='Redirect Url', compute='_get_redirect_url')
+    qk_redirect_url = fields.Char(string='Redirect Url')
 
-    @api.depends()
-    def _get_redirect_url(self):
-        for record in self:
-            record.qk_redirect_url = self.env['ir.config_parameter'].get_param(
-                'web.base.url') + '/quickbooks/oauth-callback/'
+    @api.onchange('qk_client_id')
+    def _onchange_qk_client_id(self):
+        self.qk_redirect_url = self.env['ir.config_parameter'].get_param(
+            'web.base.url') + '/quickbooks/oauth-callback/'
 
     def button_login_quickbooks(self):
         return {
