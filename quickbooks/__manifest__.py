@@ -9,6 +9,7 @@
     'license': "OPL-1",
     'depends': ['account', 'sale', 'base'],
     'data': [
+        'security/ir.model.access.csv',
         'views/qbi_settings.xml',
     ],
     'installable': True,
