@@ -146,7 +146,7 @@ class UP5OdooQuickBooks(models.Model):
         item.Name = o_pro.name
         item.Type = "Inventory"
         item.TrackQtyOnHand = False
-        item.Sku = o_pro.sku or o_pro.id
+        item.Sku = o_pro.code or o_pro.id
 
         _logger.info('Create Item: ' + o_pro.name + ' ' + str(o_pro.id))
         try:
