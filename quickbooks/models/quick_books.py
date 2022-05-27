@@ -122,7 +122,7 @@ class UP5OdooQuickBooks(models.Model):
             customer.PrimaryEmailAddr.Address = res_partner.email
 
         # push
-        _logger.info('Create Customer: ' + res_partner.name + ' - ' + res_partner.id)
+        _logger.info('Create Customer: ' + res_partner.name + ' - ' + str(res_partner.id))
         try:
             customer.save(qb=client)
             res_partner.write({'quickbooks_id': customer.Id})
@@ -160,7 +160,7 @@ class UP5OdooQuickBooks(models.Model):
         invoice.CustomerMemo.value = o_inv.partner_id.name
 
         # push
-        _logger.info('Create Invoice: ' + o_inv.name + ' - ' + o_inv.id)
+        _logger.info('Create Invoice: ' + o_inv.name + ' - ' + str(o_inv.id))
         try:
             invoice.save(qb=client)
             o_inv.write({'quickbooks_id': invoice.Id})
