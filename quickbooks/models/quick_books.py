@@ -145,7 +145,7 @@ class UP5OdooQuickBooks(models.Model):
             line.SalesItemLineDetail.ItemRef = item.to_ref()
             invoice.Line.append(line)
 
-        customer = self.create_or_update_customer(o_inv.o_inv.partner_id)
+        customer = self.create_or_update_customer(o_inv.partner_id)
         invoice.CustomerRef = customer.to_ref()
 
         invoice.CustomerMemo = CustomerMemo()
