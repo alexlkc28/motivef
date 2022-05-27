@@ -23,7 +23,7 @@ class QBResConfigSettings(models.TransientModel):
     qk_id_token = fields.Char(string='ID Token', store=True, config_parameter="qbi.qk_id_token")
     qk_realm_id = fields.Char(string='Realm ID', store=True, config_parameter="qbi.qk_realm_id")
 
-    qk_redirect_url = fields.Char(string='Redirect Url')
+    qk_redirect_url = fields.Char(string='Redirect Url', config_parameter="qbi.qk_redirect_url")
 
     @api.onchange('qk_client_id')
     def _onchange_qk_client_id(self):
