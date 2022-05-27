@@ -9,6 +9,7 @@ from quickbooks import QuickBooks
 from quickbooks.objects.base import Address, PhoneNumber, EmailAddress, CustomerMemo, Ref
 from quickbooks.objects.customer import Customer
 from quickbooks.objects.invoice import Invoice
+from quickbooks.objects.item import Item
 from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
 from quickbooks.exceptions import AuthorizationException, QuickbooksException
 
@@ -134,11 +135,34 @@ class UP5OdooQuickBooks(models.Model):
             _logger.error('[ERROR] Create Customer: ' + e.message)
             return None
 
+    def create_or_update_item(self, o_pro):
+        client = self.get_client()
+
+        if o_pro.quickbooks_id:
+            return Item.get(o_pro.quickbooks_id, qb=client)
+
+        item = Item()
+
+        item.Name = o_pro.name
+        item.Type = "Inventory"
+        item.TrackQtyOnHand = False
+        item.Sku = o_pro.sku or o_pro.id
+
+        _logger.info('Create Item: ' + o_pro.name + ' ' + str(o_pro.id))
+        try:
+            item.save(qb=client)
+            o_pro.write({'quickbooks_id': item.Id})
+            return item
+        except QuickbooksException as e:
+            _logger.error('[ERROR] Create Item: ' + e.message)
+            return None
+
     def create_qb_invoice(self, o_inv):
         client = self.get_client()
 
         # get invoice
         invoice = Invoice()
+        invalid = False
 
         for inv_line in o_inv.invoice_line_ids:
             line = SalesItemLine()
@@ -150,12 +174,16 @@ class UP5OdooQuickBooks(models.Model):
             line.SalesItemLineDetail.UnitPrice = inv_line.price_unit
             line.SalesItemLineDetail.Qty = inv_line.quantity
 
-            item_ref = Ref()
-            item_ref.value = str(inv_line.product_id.id)
-            item_ref.name = inv_line.product_id.name
-            line.SalesItemLineDetail.ItemRef = item_ref
+            item = self.create_or_update_item(inv_line.product_id)
+            if not item:
+                invalid = True
+                break
+            line.SalesItemLineDetail.ItemRef = item.to_ref()
 
             invoice.Line.append(line)
+
+        if invalid:
+            return None
 
         customer = self.create_or_update_customer(o_inv.partner_id)
         if not customer:
