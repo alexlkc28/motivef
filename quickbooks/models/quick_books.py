@@ -227,9 +227,9 @@ class UP5OdooQuickBooks(models.Model):
             _logger.error('[ERROR] Create Invoice: ' + e.message)
             return None
 
-    def push_invoices_to_qb(self):
+    def push_invoices_to_qb(self, limit=20):
         self.refresh()
-        o_invs = self.env['account.move'].search([('quickbooks_id', '=', None),('state', '=', 'posted')], limit=2)
+        o_invs = self.env['account.move'].search([('quickbooks_id', '=', None),('state', '=', 'posted')], limit=limit)
         for o_inv in o_invs:
             if not o_inv.quickbooks_id:
                 self.create_qb_invoice(o_inv)
