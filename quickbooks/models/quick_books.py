@@ -100,7 +100,7 @@ class UP5OdooQuickBooks(models.Model):
         customer.GivenName = res_partner.x_studio_first_name
         customer.MiddleName = ''
         customer.FamilyName = res_partner.x_studio_last_name
-        customer.Suffix = res_partner.title
+        customer.Suffix = res_partner.title.name
         customer.FullyQualifiedName = res_partner.x_studio_preferred_name
         customer.CompanyName = res_partner.x_studio_related_company_chinese
         customer.DisplayName = res_partner.display_name
