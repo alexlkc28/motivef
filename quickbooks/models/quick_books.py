@@ -154,7 +154,7 @@ class UP5OdooQuickBooks(models.Model):
         item.Name = o_pro.name
         item.Type = "Inventory"
         item.TrackQtyOnHand = False
-        item.QtyOnHand = o_pro.free_qty
+        item.QtyOnHand = o_pro.free_qty or 1
         item.Sku = o_pro.code or o_pro.id
 
         today = date.today()
