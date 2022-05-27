@@ -151,11 +151,12 @@ class UP5OdooQuickBooks(models.Model):
 
         item = Item()
 
-        sku = 'Odoo' + "{0:09d}"
+        str_format = 'Odoo' + "{0:09d}"
+        sku = str_format.format(int(o_pro.id))
 
         qty = int(o_pro.free_qty)
         if qty <= 0:
-            qty = 1000
+            qty = 10000
 
         item.Name = o_pro.name
         item.Type = "Inventory"
