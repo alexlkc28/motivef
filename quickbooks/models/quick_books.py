@@ -157,7 +157,7 @@ class UP5OdooQuickBooks(models.Model):
         item.QtyOnHand = int(o_pro.free_qty)
         item.Sku = str(o_pro.code) or str(o_pro.id)
 
-        _logger.info(str(o_pro.free_qty) + '/' + (str(o_pro.code) or str(o_pro.id)))
+        _logger.info(str(item.QtyOnHand) + '/' + str(item.Sku))
 
         today = date.today()
         item.InvStartDate = today.strftime("%Y-%m-%d")
