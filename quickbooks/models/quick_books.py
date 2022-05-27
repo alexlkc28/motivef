@@ -6,8 +6,12 @@ from intuitlib.client import AuthClient
 from intuitlib.exceptions import AuthClientError
 
 from quickbooks import QuickBooks
+from quickbooks.objects.base import Address, PhoneNumber, EmailAddress, CustomerMemo
 from quickbooks.objects.customer import Customer
 from quickbooks.objects.invoice import Invoice
+from quickbooks.objects.item import Item
+from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
+from quickbooks.exceptions import AuthorizationException, QuickbooksException
 
 import logging
 
@@ -66,7 +70,6 @@ class UP5OdooQuickBooks(models.Model):
             settings.get('REDIRECT_URL'),
             settings.get('ENVIRONMENT'),
             access_token=settings.get('ACCESS_TOKEN'),
-            refresh_token=settings.get('REFRESH_TOKEN'),
         )
 
         return QuickBooks(
@@ -75,12 +78,92 @@ class UP5OdooQuickBooks(models.Model):
             company_id=settings.get('REALM_ID'),
         )
 
-    def get_invoice(self, options=None):
+    def get_invoices(self, options=None):
         client = self.get_client()
-        return Invoice.all(qb=client)
+        try:
+            return Invoice.all(qb=client)
+        except AuthorizationException as e:
+            self.refresh()
+            return Invoice.all(qb=client)
+        except QuickbooksException as e:
+            _logger.error(e.message)
+
+    def create_or_update_customer(self, res_partner):
+        client = self.get_client()
+
+        if res_partner.quickbooks_id:
+            return Customer.get(res_partner.quickbooks_id, qb=client)
+
+        customer = Customer()
+
+        customer.Title = res_partner.name
+        customer.GivenName = res_partner.x_studio_first_name
+        customer.MiddleName = ''
+        customer.FamilyName = res_partner.x_studio_last_name
+        customer.Suffix = res_partner.title
+        customer.FullyQualifiedName = res_partner.x_studio_preferred_name
+        customer.CompanyName = res_partner.x_studio_related_company_chinese
+        customer.DisplayName = res_partner.display_name
+
+        customer.BillAddr = Address()
+        customer.BillAddr.Line1 = res_partner.street
+        customer.BillAddr.Line2 = res_partner.street2
+        customer.BillAddr.City = res_partner.city
+        customer.BillAddr.Country = res_partner.country_id.name
+        customer.BillAddr.CountrySubDivisionCode = res_partner.country_id.code
+        customer.BillAddr.PostalCode = res_partner.zip
+
+        customer.PrimaryPhone = PhoneNumber()
+        customer.PrimaryPhone.FreeFormNumber = res_partner.phone
+
+        customer.PrimaryEmailAddr = EmailAddress()
+        customer.PrimaryEmailAddr.Address = res_partner.email
+
+        customer.save(qb=client)
+
+        res_partner.write({'quickbooks_id': customer.Id})
+
+        return customer
+
+    def create_qb_invoice(self, o_inv):
+        client = self.get_client()
+
+        # get invoice
+        invoice = Invoice()
+
+        for inv_line in o_inv.invoice_line_ids:
+            line = SalesItemLine()
+            line.LineNum = inv_line.sequence
+            line.Description = inv_line.name
+            line.UnitPrice = inv_line.price_unit
+            line.QtyOnHand = inv_line.quantity
+            line.Amount = inv_line.price_subtotal
+
+            line.SalesItemLineDetail = SalesItemLineDetail()
+            item = Item.all(max_results=1, qb=client)[0]
+
+            line.SalesItemLineDetail.ItemRef = item.to_ref()
+            invoice.Line.append(line)
+
+        customer = self.create_or_update_customer(o_inv.o_inv.partner_id)
+        invoice.CustomerRef = customer.to_ref()
+
+        invoice.CustomerMemo = CustomerMemo()
+        invoice.CustomerMemo.value = o_inv.partner_id.name
+
+        # push
+        invoice.save(qb=client)
+        o_inv.write({'quickbooks_id': invoice.Id})
+        return invoice
+
+    def push_invoices_to_qb(self):
+        o_invs = self.env['account.move'].search([('state', '=', 'posted')], limit=2)
+        for o_inv in o_invs:
+            if not o_inv.quickbooks_id:
+                self.create_qb_invoice(o_inv)
 
     def update_all_invoices(self):
-        invoices = self.get_invoice()
+        invoices = self.get_invoices()
         _logger.info(invoices)
 
         return True
