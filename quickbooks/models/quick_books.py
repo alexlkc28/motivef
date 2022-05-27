@@ -61,16 +61,17 @@ class UP5OdooQuickBooks(models.Model):
         settings = self.get_config()
 
         auth_client = AuthClient(
-            client_id=settings.get('CLIENT_ID'),
-            client_secret=settings.get('CLIENT_SECRET'),
+            settings.get('CLIENT_ID'),
+            settings.get('CLIENT_SECRET'),
+            settings.get('REDIRECT_URL'),
+            settings.get('ENVIRONMENT'),
             access_token=settings.get('ACCESS_TOKEN'),
-            environment=settings.get('ENVIRONMENT'),
-            redirect_uri=settings.get('REDIRECT_URL'),
+            refresh_token=settings.get('REFRESH_TOKEN'),
         )
 
         return QuickBooks(
             auth_client=auth_client,
-            refresh_token=settings.get('ACCESS_TOKEN'),
+            refresh_token=settings.get('REFRESH_TOKEN'),
             company_id=settings.get('REALM_ID'),
         )
 
