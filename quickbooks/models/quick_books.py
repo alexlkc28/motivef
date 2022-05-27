@@ -154,8 +154,8 @@ class UP5OdooQuickBooks(models.Model):
         item.Name = o_pro.name
         item.Type = "Inventory"
         item.TrackQtyOnHand = False
-        item.QtyOnHand = o_pro.free_qty or 1
-        item.Sku = o_pro.code or o_pro.id
+        item.QtyOnHand = int(o_pro.free_qty)
+        item.Sku = o_pro.code or str(o_pro.id)
 
         today = date.today()
         item.InvStartDate = today.strftime("%Y-%m-%d")
@@ -174,8 +174,8 @@ class UP5OdooQuickBooks(models.Model):
         item.AssetAccountRef = asset_account.to_ref()
 
         try:
+            _logger.info('processing----------------------------------')
             item.save(qb=client)
-            _logger.info('Create Item Success: ' + str(item.Id))
             o_pro.write({'quickbooks_id': item.Id})
             return item
         except QuickbooksException | Exception as e:
