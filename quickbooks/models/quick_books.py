@@ -6,10 +6,9 @@ from intuitlib.client import AuthClient
 from intuitlib.exceptions import AuthClientError
 
 from quickbooks import QuickBooks
-from quickbooks.objects.base import Address, PhoneNumber, EmailAddress, CustomerMemo
+from quickbooks.objects.base import Address, PhoneNumber, EmailAddress, CustomerMemo, Ref
 from quickbooks.objects.customer import Customer
 from quickbooks.objects.invoice import Invoice
-from quickbooks.objects.item import Item
 from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
 from quickbooks.exceptions import AuthorizationException, QuickbooksException
 
@@ -140,19 +139,22 @@ class UP5OdooQuickBooks(models.Model):
 
         # get invoice
         invoice = Invoice()
-        item = Item.all(max_results=1, qb=client)[0]
 
         for inv_line in o_inv.invoice_line_ids:
             line = SalesItemLine()
             line.LineNum = inv_line.sequence or 1
             line.Description = inv_line.name
-            line.UnitPrice = inv_line.price_unit
-            line.QtyOnHand = inv_line.quantity
             line.Amount = inv_line.price_subtotal
 
             line.SalesItemLineDetail = SalesItemLineDetail()
+            line.SalesItemLineDetail.UnitPrice = inv_line.price_unit
+            line.SalesItemLineDetail.Qty = inv_line.quantity
 
-            line.SalesItemLineDetail.ItemRef = item.to_ref()
+            item_ref = Ref()
+            item_ref.value = str(inv_line.product_id.id)
+            item_ref.name = inv_line.product_id.name
+            line.SalesItemLineDetail.ItemRef = item_ref
+
             invoice.Line.append(line)
 
         customer = self.create_or_update_customer(o_inv.partner_id)
