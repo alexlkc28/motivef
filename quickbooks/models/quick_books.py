@@ -136,7 +136,7 @@ class UP5OdooQuickBooks(models.Model):
             customer.save(qb=client)
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
-        except QuickbooksException as e:
+        except QuickbooksException | Exception as e:
             _logger.error('[ERROR] Create Customer: ' + e.message)
             return None
 
@@ -175,7 +175,7 @@ class UP5OdooQuickBooks(models.Model):
             item.save(qb=client)
             o_pro.write({'quickbooks_id': item.Id})
             return item
-        except QuickbooksException as e:
+        except QuickbooksException | Exception as e:
             _logger.error('[ERROR] Create Item: ' + e.message)
             return None
 
@@ -223,7 +223,7 @@ class UP5OdooQuickBooks(models.Model):
             invoice.save(qb=client)
             o_inv.write({'quickbooks_id': invoice.Id})
             return invoice
-        except QuickbooksException as e:
+        except QuickbooksException | Exception as e:
             _logger.error('[ERROR] Create Invoice: ' + e.message)
             return None
 
