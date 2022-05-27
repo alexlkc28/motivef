@@ -18,10 +18,10 @@ class QuickBooks(models.Model):
             'CLIENT_ID': param.get_param('qbi.qk_client_id') or None,
             'CLIENT_SECRET': param.get_param('qbi.qk_client_secret') or None,
             'ENVIRONMENT': param.get_param('qbi.qk_environment') or 'sandbox',
-            'REALM_ID': param.get_param('qbi.realm_id') or None,
-            'ACCESS_TOKEN': param.get_param('qbi.access_token') or None,
-            'REFRESH_TOKEN': param.get_param('qbi.refresh_token') or None,
-            'ID_TOKEN': param.get_param('qbi.id_token') or None,
+            'REALM_ID': param.get_param('qbi.qk_realm_id') or None,
+            'ACCESS_TOKEN': param.get_param('qbi.qk_access_token') or None,
+            'REFRESH_TOKEN': param.get_param('qbi.qk_refresh_token') or None,
+            'ID_TOKEN': param.get_param('qbi.qk_id_token') or None,
         }
 
     def set_config(self, key, value):

@@ -77,10 +77,10 @@ class QuickBooksAuthController(http.Controller):
         try:
             auth_client.get_bearer_token(auth_code, realm_id=realm_id)
 
-            qb_env.set_config('realm_id', realm_id)
-            qb_env.set_config('access_token', auth_client.access_token)
-            qb_env.set_config('refresh_token', auth_client.refresh_token)
-            qb_env.set_config('id_token', auth_client.id_token)
+            qb_env.set_config('qk_realm_id', realm_id)
+            qb_env.set_config('qk_access_token', auth_client.access_token)
+            qb_env.set_config('qk_refresh_token', auth_client.refresh_token)
+            qb_env.set_config('qk_id_token', auth_client.id_token)
         except AuthClientError as e:
             # just printing status_code here but it can be used for retry workflows, etc
             _logger.info(e.status_code)

@@ -18,10 +18,18 @@ class QBResConfigSettings(models.TransientModel):
         ('production', 'Production')
     ], string='QuickBooks Environment', store=True, config_parameter="qki.qk_environment")
 
-    access_token = fields.Char(string='Access Token', store=True, config_parameter="qbi.access_token")
-    refresh_token = fields.Char(string='Refresh Token', store=True, config_parameter="qbi.refresh_token")
-    id_token = fields.Char(string='ID Token', store=True, config_parameter="qbi.id_token")
-    realm_id = fields.Char(string='Realm ID', store=True, config_parameter="qbi.realm_id")
+    qk_access_token = fields.Char(string='Access Token', store=True, config_parameter="qbi.qk_access_token")
+    qk_refresh_token = fields.Char(string='Refresh Token', store=True, config_parameter="qbi.qk_refresh_token")
+    qk_id_token = fields.Char(string='ID Token', store=True, config_parameter="qbi.qk_id_token")
+    qk_realm_id = fields.Char(string='Realm ID', store=True, config_parameter="qbi.qk_realm_id")
+
+    qk_redirect_url = fields.Char(string='Redirect Url', compute='_get_redirect_url')
+
+    @api.depends()
+    def _get_redirect_url(self):
+        for record in self:
+            record.qk_redirect_url = self.env['ir.config_parameter'].get_param(
+                'web.base.url') + '/quickbooks/oauth-callback/'
 
     def button_login_quickbooks(self):
         return {
