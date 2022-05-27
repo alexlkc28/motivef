@@ -97,9 +97,9 @@ class UP5OdooQuickBooks(models.Model):
         customer = Customer()
 
         customer.Title = res_partner.name
-        customer.GivenName = res_partner.x_studio_first_name
+        customer.GivenName = res_partner.x_studio_first_name or ''
         customer.MiddleName = ''
-        customer.FamilyName = res_partner.x_studio_last_name
+        customer.FamilyName = res_partner.x_studio_last_name or res_partner.name
         customer.Suffix = res_partner.title.name
         customer.FullyQualifiedName = res_partner.x_studio_preferred_name
         customer.CompanyName = res_partner.x_studio_related_company_chinese
@@ -140,7 +140,7 @@ class UP5OdooQuickBooks(models.Model):
 
         for inv_line in o_inv.invoice_line_ids:
             line = SalesItemLine()
-            line.LineNum = inv_line.sequence
+            line.LineNum = inv_line.sequence or 1
             line.Description = inv_line.name
             line.UnitPrice = inv_line.price_unit
             line.QtyOnHand = inv_line.quantity
