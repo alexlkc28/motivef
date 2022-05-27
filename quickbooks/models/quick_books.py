@@ -160,7 +160,7 @@ class UP5OdooQuickBooks(models.Model):
 
         item.Name = o_pro.name
         item.Type = "Inventory"
-        item.TrackQtyOnHand = False
+        item.TrackQtyOnHand = True
         item.QtyOnHand = qty
         item.Sku = sku
 
