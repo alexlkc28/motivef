@@ -61,7 +61,7 @@
                                     </div>
                                     <div class="content-group">
                                         <div class="mt16">
-                                            <field name="qk_redirect_url" class="o_light_label" attrs="{'readonly': true}"/>
+                                            <field name="qk_redirect_url" class="o_light_label" attrs="{'readonly': 1}"/>
                                         </div>
                                     </div>
                                 </div>
@@ -89,7 +89,7 @@
                                     </div>
                                     <div class="content-group">
                                         <div class="mt16">
-                                            <field name="qk_access_token" class="o_light_label" attrs="{'readonly': true}"/>
+                                            <field name="qk_access_token" class="o_light_label" attrs="{'readonly': 1}"/>
                                         </div>
                                     </div>
                                 </div>
