@@ -71,7 +71,16 @@
                                 <div class="o_setting_right_pane">
                                     <div class="content-group">
                                         <div class="mt16">
-                                            <button name="button_login_quickbooks" string="QuickBooks Login" type="object" class="oe_highlight"/>
+                                            <button name="button_login_quickbooks"
+                                                    string="QuickBooks Login"
+                                                    type="object"
+                                                    attrs="{'invisible': ['|','|', '|',('qk_client_id', '=', ''),('qk_client_id', '=', None),('qk_client_secret', '=', None),('qk_client_secret', '=', None)]}"
+                                                    class="oe_highlight"/>
+                                            <button name="button_refresh_quickbooks"
+                                                    string="Refresh Token"
+                                                    type="object"
+                                                    attrs="{'invisible': ['|','|', '|',('qk_client_id', '=', ''),('qk_client_id', '=', None),('qk_client_secret', '=', None),('qk_client_secret', '=', None)]}"
+                                                    class="oe_highlight"/>
                                         </div>
                                     </div>
                                 </div>

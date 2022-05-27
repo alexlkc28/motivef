@@ -29,3 +29,10 @@ class QBResConfigSettings(models.TransientModel):
             'url': '/quickbooks/oauth-login/',
             'target': 'new',
         }
+
+    def button_refresh_quickbooks(self):
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/quickbooks/oauth-login/',
+            'target': 'new',
+        }
