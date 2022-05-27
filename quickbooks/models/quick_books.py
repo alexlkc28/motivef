@@ -157,13 +157,8 @@ class UP5OdooQuickBooks(models.Model):
         return invoice
 
     def push_invoices_to_qb(self):
+        self.refresh()
         o_invs = self.env['account.move'].search([('state', '=', 'posted')], limit=2)
         for o_inv in o_invs:
             if not o_inv.quickbooks_id:
                 self.create_qb_invoice(o_inv)
-
-    def update_all_invoices(self):
-        invoices = self.get_invoices()
-        _logger.info(invoices)
-
-        return True
