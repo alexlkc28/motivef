@@ -61,12 +61,11 @@ class QuickBooks(models.Model):
         settings = self.get_config()
 
         auth_client = AuthClient(
-            settings.get('CLIENT_ID'),
-            settings.get('CLIENT_SECRET'),
-            settings.get('REDIRECT_URL'),
-            settings.get('ENVIRONMENT'),
+            client_id=settings.get('CLIENT_ID'),
+            client_secret=settings.get('CLIENT_SECRET'),
             access_token=settings.get('ACCESS_TOKEN'),
-            refresh_token=settings.get('REFRESH_TOKEN'),
+            environment=settings.get('ENVIRONMENT'),
+            redirect_uri=settings.get('REDIRECT_URL'),
         )
 
         return QuickBooks(
