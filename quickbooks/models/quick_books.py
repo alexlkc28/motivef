@@ -17,6 +17,9 @@ from quickbooks.exceptions import AuthorizationException, QuickbooksException
 
 import logging
 import re
+import base64
+import hmac
+import hashlib
 
 _logger = logging.getLogger(__name__)
 
@@ -92,6 +95,27 @@ class UP5OdooQuickBooks(models.Model):
 
     def special_char(self, string):
         return re.sub('[^A-z0-9() -]', '', string).replace(" ", " ")
+
+    def validate_signature_header(self, request_body, signature):
+        settings = self.get_config()
+        verifier_token = settings.get('VERIFY_WEBHOOK_TOKEN')
+        # per quickbooks documentation
+        # 1st step:
+        #     hash the notification payload (request_body) with HMAC_SHA256_ALGORITHM
+        #     using <verifier token> as the key
+        hmac_hex_digest = hmac.new(
+            verifier_token,  # token from quickbooks in bytes
+            request_body,  # request_body = request.data
+            hashlib.sha256
+        ).hexdigest()
+        # 2nd step:
+        #     convert the intuit-signature header from base-64 to base-16
+        decoded_hex_signature = base64.b64decode(
+            signature  # request.headers.get('intuit-signature')
+        ).hex()
+        # 3rd step
+        # compare values from step 1 and 2
+        return hmac_hex_digest == decoded_hex_signature
 
     def get_invoices(self, options=None):
         try:
