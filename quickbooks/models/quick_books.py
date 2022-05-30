@@ -79,6 +79,7 @@ class UP5OdooQuickBooks(models.Model):
             settings.get('REDIRECT_URL'),
             settings.get('ENVIRONMENT'),
             access_token=settings.get('ACCESS_TOKEN'),
+            refresh_token=settings.get('REFRESH_TOKEN'),
         )
 
         return QuickBooks(
