@@ -62,6 +62,10 @@ class UP5OdooQuickBooks(models.Model):
             auth_client.refresh()
         except AuthClientError as e:
             _logger.info(e)
+        except:
+            _logger.info('Refresh token error')
+
+        _logger.info(auth_client)
 
         self.set_config('qk_access_token', auth_client.access_token)
         self.set_config('qk_refresh_token', auth_client.refresh_token)
