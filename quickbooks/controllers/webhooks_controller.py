@@ -21,7 +21,7 @@ class QuickBooksWebhookController(http.Controller):
         _logger.info(headers)
         _logger.info(data)
 
-        verify = qb.validate_signature_header(data, headers['Intuit-Signature'])
+        verify = qb.validate_signature_header(http.request.httprequest.get_data(), headers['Intuit-Signature'])
         _logger.info(verify)
 
         for event in data.get('eventNotifications'):
