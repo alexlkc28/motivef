@@ -122,19 +122,28 @@ class UP5OdooQuickBooks(models.Model):
 
         customer = Customer()
 
-        customer.Title = res_partner.name
+        if res_partner.x_studio_last_name:
+            customer.Title = res_partner.x_studio_last_name
+        else:
+            word_list = res_partner.name.split()
+            customer.Title = word_list[-1]
+
         if res_partner.x_studio_first_name:
             customer.GivenName = res_partner.x_studio_first_name
-        customer.MiddleName = ''
+
         if res_partner.x_studio_last_name:
             customer.FamilyName = res_partner.x_studio_last_name
         else:
             customer.FamilyName = res_partner.name
-        customer.Suffix = res_partner.title.name
+
         if res_partner.x_studio_preferred_name:
             customer.FullyQualifiedName = res_partner.x_studio_preferred_name
+
         if res_partner.x_studio_related_company_chinese:
             customer.CompanyName = res_partner.x_studio_related_company_chinese
+
+        customer.MiddleName = ''
+        customer.Suffix = res_partner.title.name
         customer.DisplayName = res_partner.display_name
 
         customer.BillAddr = Address()
@@ -164,7 +173,7 @@ class UP5OdooQuickBooks(models.Model):
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
         except QuickbooksException as e:
-            _logger.error('[ERROR] Create Customer: ' + e.message + '-->' + e.detail)
+            _logger.error('[ERROR] Create Customer: ' + e.message + ' --> ' + e.detail)
             return None
 
     def create_or_update_item(self, o_pro):
@@ -228,7 +237,7 @@ class UP5OdooQuickBooks(models.Model):
             o_pro.write({'quickbooks_id': item.Id})
             return item
         except QuickbooksException as e:
-            _logger.error('[ERROR] Create Item: ' + e.message)
+            _logger.error('[ERROR] Create Item: ' + e.message + ' --> ' + e.detail)
             return None
 
     def create_qb_invoice(self, o_inv):
@@ -241,22 +250,23 @@ class UP5OdooQuickBooks(models.Model):
         invalid = False
 
         for inv_line in o_inv.invoice_line_ids:
-            line = SalesItemLine()
-            line.LineNum = inv_line.sequence or 1
-            line.Description = inv_line.name
-            line.Amount = inv_line.price_subtotal
+            if inv_line.product_id:
+                line = SalesItemLine()
+                line.LineNum = inv_line.sequence
+                line.Description = inv_line.name
+                line.Amount = inv_line.price_subtotal
 
-            line.SalesItemLineDetail = SalesItemLineDetail()
-            line.SalesItemLineDetail.UnitPrice = inv_line.price_unit
-            line.SalesItemLineDetail.Qty = inv_line.quantity
+                line.SalesItemLineDetail = SalesItemLineDetail()
+                line.SalesItemLineDetail.UnitPrice = inv_line.price_unit
+                line.SalesItemLineDetail.Qty = inv_line.quantity
 
-            item = self.create_or_update_item(inv_line.product_id)
-            if not item:
-                invalid = True
-                break
-            line.SalesItemLineDetail.ItemRef = item.to_ref()
+                item = self.create_or_update_item(inv_line.product_id)
+                if not item:
+                    invalid = True
+                    break
+                line.SalesItemLineDetail.ItemRef = item.to_ref()
 
-            invoice.Line.append(line)
+                invoice.Line.append(line)
 
         if invalid:
             return None
@@ -282,7 +292,7 @@ class UP5OdooQuickBooks(models.Model):
             o_inv.write({'quickbooks_id': invoice.Id})
             return invoice
         except QuickbooksException as e:
-            _logger.error('[ERROR] Create Invoice: ' + e.message)
+            _logger.error('[ERROR] Create Invoice: ' + e.message + ' --> ' + e.detail)
             return None
 
     def push_invoices_to_qb(self, limit=20):
