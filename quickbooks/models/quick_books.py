@@ -164,7 +164,7 @@ class UP5OdooQuickBooks(models.Model):
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
         except QuickbooksException as e:
-            _logger.error('[ERROR] Create Customer: ' + e.message)
+            _logger.error('[ERROR] Create Customer: ' + e.message + '-->' + e.detail)
             return None
 
     def create_or_update_item(self, o_pro):
