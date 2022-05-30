@@ -9,10 +9,10 @@ _logger = logging.getLogger(__name__)
 
 
 class QuickBooksWebhookController(http.Controller):
-    @http.route('/quickbooks/invoice-webhooks/', auth='none', type='json', cors='*', csrf=False,
-                method=['POST'], lover='quickbooks_invoice_webhooks')
-    def invoice_webhooks(self, **kw):
-        _logger.info('---------------------------- invoice_webhooks')
+    @http.route('/quickbooks/webhooks/', auth='none', type='json', cors='*', csrf=False,
+                method=['POST'], lover='quickbooks_webhooks')
+    def webhooks(self, **kw):
+        _logger.info('---------------------------- webhooks')
 
         headers = http.request.httprequest.headers
         data = http.request.jsonrequest
