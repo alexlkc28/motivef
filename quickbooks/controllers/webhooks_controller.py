@@ -21,12 +21,15 @@ class QuickBooksWebhookController(http.Controller):
         _logger.info(headers)
         _logger.info(data)
 
-        body = http.request.httprequest.get_data()
-        _logger.info(body)
-
-        verify = qb.validate_signature_header(body, headers['Intuit-Signature'])
+        verify = qb.validate_signature_header(data, headers['Intuit-Signature'])
         _logger.info(verify)
 
-        qb.update_o_invoice(data)
+        for event in data.get('eventNotifications'):
+            if event.get('dataChangeEvent') and event.get('dataChangeEvent').get('entities'):
+                for entity in event.get('dataChangeEvent').get('entities'):
+                    if entity.get('name') == 'Invoice':
+                        qb.update_o_invoice(entity)
+                    if entity.get('name') == 'Payment':
+                        qb.update_o_invoice(entity)
 
         return {'status': 200}

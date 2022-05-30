@@ -20,7 +20,6 @@ import re
 import base64
 import hmac
 import hashlib
-import binascii
 
 _logger = logging.getLogger(__name__)
 
@@ -104,7 +103,6 @@ class UP5OdooQuickBooks(models.Model):
         # 1st step:
         #     hash the notification payload (request_body) with HMAC_SHA256_ALGORITHM
         #     using <verifier token> as the key
-        request_body = request_body.encode()
         hmac_hex_digest = hmac.new(
             verifier_token,
             request_body,
