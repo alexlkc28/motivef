@@ -102,7 +102,12 @@ class UP5OdooQuickBooks(models.Model):
             return Customer.get(res_partner.quickbooks_id, qb=client)
 
         # check Name
-        customers = Customer.filter(DisplayName=res_partner.display_name, qb=client)
+        try:
+            customers = Customer.filter(DisplayName=res_partner.display_name, qb=client)
+        except AuthorizationException as e:
+            self.refresh()
+            customers = Customer.filter(DisplayName=res_partner.display_name, qb=client)
+
         for customer in customers:
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
@@ -139,6 +144,11 @@ class UP5OdooQuickBooks(models.Model):
             customer.save(qb=client)
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
+        except AuthorizationException as e:
+            self.refresh()
+            customer.save(qb=client)
+            res_partner.write({'quickbooks_id': customer.Id})
+            return customer
         except QuickbooksException as e:
             _logger.error('[ERROR] Create Customer: ' + e.message)
             return None
@@ -152,7 +162,12 @@ class UP5OdooQuickBooks(models.Model):
             return Item.get(o_pro.quickbooks_id, qb=client)
 
         # check name
-        items = Item.filter(Name=str(o_pro.name), qb=client)
+        try:
+            items = Item.filter(Name=str(o_pro.name), qb=client)
+        except AuthorizationException as e:
+            self.refresh()
+            items = Item.filter(Name=str(o_pro.name), qb=client)
+
         if items:
             for item in items:
                 o_pro.write({'quickbooks_id': str(item.Id)})
@@ -186,6 +201,11 @@ class UP5OdooQuickBooks(models.Model):
         item.AssetAccountRef = asset_account.to_ref()
 
         try:
+            item.save(qb=client)
+            o_pro.write({'quickbooks_id': item.Id})
+            return item
+        except AuthorizationException as e:
+            self.refresh()
             item.save(qb=client)
             o_pro.write({'quickbooks_id': item.Id})
             return item
@@ -238,12 +258,16 @@ class UP5OdooQuickBooks(models.Model):
             invoice.save(qb=client)
             o_inv.write({'quickbooks_id': invoice.Id})
             return invoice
+        except AuthorizationException as e:
+            self.refresh()
+            invoice.save(qb=client)
+            o_inv.write({'quickbooks_id': invoice.Id})
+            return invoice
         except QuickbooksException as e:
             _logger.error('[ERROR] Create Invoice: ' + e.message)
             return None
 
     def push_invoices_to_qb(self, limit=20):
-        self.refresh()
         o_invs = self.env['account.move'].search([('quickbooks_id', '=', None),('state', '=', 'posted')], limit=limit)
         for o_inv in o_invs:
             if not o_inv.quickbooks_id:
