@@ -99,7 +99,11 @@ class UP5OdooQuickBooks(models.Model):
         client = self.get_client()
 
         if res_partner.quickbooks_id:
-            return Customer.get(res_partner.quickbooks_id, qb=client)
+            try:
+                return Customer.get(res_partner.quickbooks_id, qb=client)
+            except AuthorizationException as e:
+                self.refresh()
+                return Customer.get(res_partner.quickbooks_id, qb=client)
 
         # check Name
         try:
@@ -159,7 +163,11 @@ class UP5OdooQuickBooks(models.Model):
         client = self.get_client()
 
         if o_pro.quickbooks_id:
-            return Item.get(o_pro.quickbooks_id, qb=client)
+            try:
+                return Item.get(o_pro.quickbooks_id, qb=client)
+            except AuthorizationException as e:
+                self.refresh()
+                return Item.get(o_pro.quickbooks_id, qb=client)
 
         # check name
         try:
