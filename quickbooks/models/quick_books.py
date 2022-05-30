@@ -101,8 +101,10 @@ class UP5OdooQuickBooks(models.Model):
         if res_partner.quickbooks_id:
             return Customer.get(res_partner.quickbooks_id, qb=client)
 
+        # check Name
         customers = Customer.filter(DisplayName=res_partner.display_name, qb=client)
         for customer in customers:
+            res_partner.write({'quickbooks_id': customer.Id})
             return customer
 
         customer = Customer()
@@ -148,6 +150,12 @@ class UP5OdooQuickBooks(models.Model):
 
         if o_pro.quickbooks_id:
             return Item.get(o_pro.quickbooks_id, qb=client)
+
+        # check name
+        items = Item.filter(Name=o_pro.name, qb=client)
+        for item in items:
+            o_pro.write({'quickbooks_id': item.Id})
+            return item
 
         item = Item()
 
