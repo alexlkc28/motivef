@@ -119,12 +119,18 @@ class UP5OdooQuickBooks(models.Model):
         customer = Customer()
 
         customer.Title = res_partner.name
-        customer.GivenName = res_partner.x_studio_first_name or ''
+        if res_partner.x_studio_first_name:
+            customer.GivenName = res_partner.x_studio_first_name
         customer.MiddleName = ''
-        customer.FamilyName = res_partner.x_studio_last_name or res_partner.name
+        if res_partner.x_studio_last_name:
+            customer.FamilyName = res_partner.x_studio_last_name
+        else:
+            customer.FamilyName = res_partner.name
         customer.Suffix = res_partner.title.name
-        customer.FullyQualifiedName = res_partner.x_studio_preferred_name
-        customer.CompanyName = res_partner.x_studio_related_company_chinese
+        if res_partner.x_studio_preferred_name:
+            customer.FullyQualifiedName = res_partner.x_studio_preferred_name
+        if res_partner.x_studio_related_company_chinese:
+            customer.CompanyName = res_partner.x_studio_related_company_chinese
         customer.DisplayName = res_partner.display_name
 
         customer.BillAddr = Address()
