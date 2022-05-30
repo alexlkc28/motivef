@@ -17,4 +17,8 @@ class QuickBooksWebhookController(http.Controller):
         headers = http.request.httprequest.headers
         data = http.request.jsonrequest
 
+        settings = http.request.env['quickbooks.quickbooks'].get_config()
+
+        _logger.info(headers)
+
         http.request.env['quickbooks.quickbooks'].sudo().update_o_invoice(data)

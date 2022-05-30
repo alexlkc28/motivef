@@ -29,6 +29,8 @@ class QBResConfigSettings(models.TransientModel):
     qk_expense_account = fields.Char('Expense Account', store=True, config_parameter="qbi.qk_expense_account")
     qk_asset_account = fields.Char('Asset Account', store=True, config_parameter="qbi.qk_asset_account")
 
+    qk_webhook_token = fields.Char('Webhook Token', store=True, config_parameter="qbi.qk_webhook_token")
+
     @api.onchange('qk_client_id')
     def _onchange_qk_client_id(self):
         self.qk_redirect_url = self.env['ir.config_parameter'].get_param(

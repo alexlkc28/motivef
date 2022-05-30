@@ -40,6 +40,7 @@ class UP5OdooQuickBooks(models.Model):
             'INCOME_ACCOUNT': param.get_param('qbi.qk_income_account') or None,
             'EXPENSE_ACCOUNT': param.get_param('qbi.qk_expense_account') or None,
             'ASSET_ACCOUNT': param.get_param('qbi.qk_asset_account') or None,
+            'VERIFY_WEBHOOK_TOKEN': param.get_param('qbi.qk_webhook_token') or None,
         }
 
     def set_config(self, key, value):
