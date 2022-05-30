@@ -104,7 +104,7 @@ class UP5OdooQuickBooks(models.Model):
         #     hash the notification payload (request_body) with HMAC_SHA256_ALGORITHM
         #     using <verifier token> as the key
         hmac_hex_digest = hmac.new(
-            verifier_token,
+            verifier_token.encode(),
             request_body,
             hashlib.sha256
         ).hexdigest()
