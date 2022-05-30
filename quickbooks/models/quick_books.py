@@ -158,7 +158,7 @@ class UP5OdooQuickBooks(models.Model):
             return None
 
     def create_or_update_item(self, o_pro):
-        _logger.info('Create Item: ' + o_pro.name + ' ' + str(o_pro.id))
+        _logger.info('Create Item: ' + str(o_pro.name) + ' ' + str(o_pro.id))
 
         client = self.get_client()
 
