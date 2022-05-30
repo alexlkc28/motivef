@@ -12,6 +12,7 @@ from quickbooks.objects.customer import Customer
 from quickbooks.objects.account import Account
 from quickbooks.objects.invoice import Invoice
 from quickbooks.objects.item import Item
+from quickbooks.objects.payment import Payment
 from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
 from quickbooks.exceptions import AuthorizationException, QuickbooksException
 
@@ -329,3 +330,13 @@ class UP5OdooQuickBooks(models.Model):
 
     def update_o_invoice(self, data):
         _logger.info(data)
+
+    def update_o_invoice_from_payment(self, data):
+        if data.get('id'):
+            try:
+                payment = Payment.get(data.get('id'), qb=self.get_client())
+            except AuthorizationException as e:
+                self.refresh()
+                payment = Payment.get(data.get('id'), qb=self.get_client())
+
+            _logger.info(payment)
