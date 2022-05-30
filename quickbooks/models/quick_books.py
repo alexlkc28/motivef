@@ -250,7 +250,7 @@ class UP5OdooQuickBooks(models.Model):
         invalid = False
 
         for inv_line in o_inv.invoice_line_ids:
-            if inv_line.product_id:
+            if inv_line.product_id and inv_line.product_id.id:
                 line = SalesItemLine()
                 line.LineNum = inv_line.sequence
                 line.Description = inv_line.name
@@ -264,6 +264,7 @@ class UP5OdooQuickBooks(models.Model):
                 if not item:
                     invalid = True
                     break
+
                 line.SalesItemLineDetail.ItemRef = item.to_ref()
 
                 invoice.Line.append(line)
