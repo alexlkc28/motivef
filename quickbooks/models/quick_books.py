@@ -301,3 +301,6 @@ class UP5OdooQuickBooks(models.Model):
         for o_inv in o_invs:
             if not o_inv.quickbooks_id:
                 self.create_qb_invoice(o_inv)
+
+    def update_o_invoice(self, data):
+        _logger.info(data)
