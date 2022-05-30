@@ -20,6 +20,7 @@ import re
 import base64
 import hmac
 import hashlib
+import binascii
 
 _logger = logging.getLogger(__name__)
 
@@ -103,15 +104,17 @@ class UP5OdooQuickBooks(models.Model):
         # 1st step:
         #     hash the notification payload (request_body) with HMAC_SHA256_ALGORITHM
         #     using <verifier token> as the key
+        byte_key = binascii.unhexlify(verifier_token)
+        request_body = request_body.encode()
         hmac_hex_digest = hmac.new(
-            verifier_token,  # token from quickbooks in bytes
-            request_body,  # request_body = request.data
+            byte_key,
+            request_body,
             hashlib.sha256
         ).hexdigest()
         # 2nd step:
         #     convert the intuit-signature header from base-64 to base-16
         decoded_hex_signature = base64.b64decode(
-            signature  # request.headers.get('intuit-signature')
+            signature
         ).hex()
         # 3rd step
         # compare values from step 1 and 2

@@ -18,12 +18,15 @@ class QuickBooksWebhookController(http.Controller):
 
         headers = http.request.httprequest.headers
         data = http.request.jsonrequest
+        _logger.info(headers)
+        _logger.info(data)
 
         body = http.request.httprequest.get_data()
+        _logger.info(body)
 
         verify = qb.validate_signature_header(body, headers['Intuit-Signature'])
         _logger.info(verify)
 
-        http.request.env['quickbooks.quickbooks'].sudo().update_o_invoice(data)
+        qb.update_o_invoice(data)
 
         return {'status': 200}
