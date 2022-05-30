@@ -256,7 +256,7 @@ class UP5OdooQuickBooks(models.Model):
                 line.Description = inv_line.name
                 line.Amount = inv_line.price_subtotal
                 if inv_line.discount:
-                    line.Amount = inv_line.price_subtotal - inv_line.price_subtotal * inv_line.discount / 100
+                    line.Amount = inv_line.price_subtotal - (inv_line.price_subtotal * inv_line.discount / 100)
 
                 line.SalesItemLineDetail = SalesItemLineDetail()
                 line.SalesItemLineDetail.UnitPrice = inv_line.price_unit
