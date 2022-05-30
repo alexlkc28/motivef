@@ -186,10 +186,10 @@ class UP5OdooQuickBooks(models.Model):
 
         # check name
         try:
-            items = Item.filter(Name=str(o_pro.name), qb=self.get_client())
+            items = Item.filter(Name=str(o_pro.name).encode('utf-8'), qb=self.get_client())
         except AuthorizationException as e:
             self.refresh()
-            items = Item.filter(Name=str(o_pro.name), qb=self.get_client())
+            items = Item.filter(Name=str(o_pro.name).encode('utf-8'), qb=self.get_client())
 
         if items:
             for item in items:
