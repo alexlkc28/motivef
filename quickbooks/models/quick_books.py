@@ -16,6 +16,7 @@ from quickbooks.objects.detailline import SalesItemLine, SalesItemLineDetail
 from quickbooks.exceptions import AuthorizationException, QuickbooksException
 
 import logging
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -88,6 +89,9 @@ class UP5OdooQuickBooks(models.Model):
             company_id=settings.get('REALM_ID'),
         )
 
+    def special_char(self, string):
+        return re.sub('[^A-z0-9() -]', '', string).replace(" ", " ")
+
     def get_invoices(self, options=None):
         try:
             return Invoice.all(qb=self.get_client())
@@ -108,11 +112,12 @@ class UP5OdooQuickBooks(models.Model):
                 return Customer.get(res_partner.quickbooks_id, qb=self.get_client())
 
         # check Name
+        cust_name = self.special_char(str(res_partner.display_name))
         try:
-            customers = Customer.filter(DisplayName=res_partner.display_name.encode('utf-8'), qb=self.get_client())
+            customers = Customer.filter(DisplayName=cust_name, qb=self.get_client())
         except AuthorizationException as e:
             self.refresh()
-            customers = Customer.filter(DisplayName=res_partner.display_name.encode('utf-8'), qb=self.get_client())
+            customers = Customer.filter(DisplayName=cust_name, qb=self.get_client())
 
         for customer in customers:
             res_partner.write({'quickbooks_id': customer.Id})
@@ -142,7 +147,7 @@ class UP5OdooQuickBooks(models.Model):
 
         customer.MiddleName = ''
         customer.Suffix = res_partner.title.name
-        customer.DisplayName = res_partner.display_name
+        customer.DisplayName = cust_name
 
         customer.BillAddr = Address()
         customer.BillAddr.Line1 = res_partner.street
@@ -185,11 +190,12 @@ class UP5OdooQuickBooks(models.Model):
                 return Item.get(o_pro.quickbooks_id, qb=self.get_client())
 
         # check name
+        pro_name = self.special_char(str(o_pro.name))
         try:
-            items = Item.filter(Name=str(o_pro.name).encode('utf-8'), qb=self.get_client())
+            items = Item.filter(Name=pro_name, qb=self.get_client())
         except AuthorizationException as e:
             self.refresh()
-            items = Item.filter(Name=str(o_pro.name).encode('utf-8'), qb=self.get_client())
+            items = Item.filter(Name=pro_name, qb=self.get_client())
 
         if items:
             for item in items:
@@ -201,7 +207,7 @@ class UP5OdooQuickBooks(models.Model):
         str_format = 'Odoo' + "{0:09d}"
         sku = str_format.format(int(o_pro.id))
 
-        item.Name = o_pro.name
+        item.Name = pro_name
         item.Type = "Inventory"
         item.TrackQtyOnHand = False
         item.QtyOnHand = 10000
