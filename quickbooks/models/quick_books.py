@@ -152,10 +152,11 @@ class UP5OdooQuickBooks(models.Model):
             return Item.get(o_pro.quickbooks_id, qb=client)
 
         # check name
-        items = Item.filter(Name=o_pro.name, qb=client)
-        for item in items:
-            o_pro.write({'quickbooks_id': item.Id})
-            return item
+        items = Item.filter(Name=str(o_pro.name), qb=client)
+        if items:
+            for item in items:
+                o_pro.write({'quickbooks_id': str(item.Id)})
+                return item
 
         item = Item()
 
