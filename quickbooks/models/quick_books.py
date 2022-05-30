@@ -89,33 +89,30 @@ class UP5OdooQuickBooks(models.Model):
         )
 
     def get_invoices(self, options=None):
-        client = self.get_client()
         try:
-            return Invoice.all(qb=client)
+            return Invoice.all(qb=self.get_client())
         except AuthorizationException as e:
             self.refresh()
-            return Invoice.all(qb=client)
+            return Invoice.all(qb=self.get_client())
         except QuickbooksException as e:
             _logger.error(e.message)
 
     def create_or_update_customer(self, res_partner):
         _logger.info('Create Customer: ' + res_partner.name + ' - ' + str(res_partner.id))
 
-        client = self.get_client()
-
         if res_partner.quickbooks_id:
             try:
-                return Customer.get(res_partner.quickbooks_id, qb=client)
+                return Customer.get(res_partner.quickbooks_id, qb=self.get_client())
             except AuthorizationException as e:
                 self.refresh()
-                return Customer.get(res_partner.quickbooks_id, qb=client)
+                return Customer.get(res_partner.quickbooks_id, qb=self.get_client())
 
         # check Name
         try:
-            customers = Customer.filter(DisplayName=res_partner.display_name, qb=client)
+            customers = Customer.filter(DisplayName=res_partner.display_name.encode('utf-8'), qb=self.get_client())
         except AuthorizationException as e:
             self.refresh()
-            customers = Customer.filter(DisplayName=res_partner.display_name, qb=client)
+            customers = Customer.filter(DisplayName=res_partner.display_name.encode('utf-8'), qb=self.get_client())
 
         for customer in customers:
             res_partner.write({'quickbooks_id': customer.Id})
@@ -165,12 +162,12 @@ class UP5OdooQuickBooks(models.Model):
 
         # push
         try:
-            customer.save(qb=client)
+            customer.save(qb=self.get_client())
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
         except AuthorizationException as e:
             self.refresh()
-            customer.save(qb=client)
+            customer.save(qb=self.get_client())
             res_partner.write({'quickbooks_id': customer.Id})
             return customer
         except QuickbooksException as e:
@@ -180,21 +177,19 @@ class UP5OdooQuickBooks(models.Model):
     def create_or_update_item(self, o_pro):
         _logger.info('Create Item: ' + str(o_pro.name) + ' ' + str(o_pro.id))
 
-        client = self.get_client()
-
         if o_pro.quickbooks_id:
             try:
-                return Item.get(o_pro.quickbooks_id, qb=client)
+                return Item.get(o_pro.quickbooks_id, qb=self.get_client())
             except AuthorizationException as e:
                 self.refresh()
-                return Item.get(o_pro.quickbooks_id, qb=client)
+                return Item.get(o_pro.quickbooks_id, qb=self.get_client())
 
         # check name
         try:
-            items = Item.filter(Name=str(o_pro.name), qb=client)
+            items = Item.filter(Name=str(o_pro.name), qb=self.get_client())
         except AuthorizationException as e:
             self.refresh()
-            items = Item.filter(Name=str(o_pro.name), qb=client)
+            items = Item.filter(Name=str(o_pro.name), qb=self.get_client())
 
         if items:
             for item in items:
@@ -220,21 +215,21 @@ class UP5OdooQuickBooks(models.Model):
                 'ASSET_ACCOUNT'):
             return None
 
-        income_account = Account.get(settings.get('INCOME_ACCOUNT'), qb=client)
-        expense_account = Account.get(settings.get('EXPENSE_ACCOUNT'), qb=client)
-        asset_account = Account.get(settings.get('ASSET_ACCOUNT'), qb=client)
+        income_account = Account.get(settings.get('INCOME_ACCOUNT'), qb=self.get_client())
+        expense_account = Account.get(settings.get('EXPENSE_ACCOUNT'), qb=self.get_client())
+        asset_account = Account.get(settings.get('ASSET_ACCOUNT'), qb=self.get_client())
 
         item.IncomeAccountRef = income_account.to_ref()
         item.ExpenseAccountRef = expense_account.to_ref()
         item.AssetAccountRef = asset_account.to_ref()
 
         try:
-            item.save(qb=client)
+            item.save(qb=self.get_client())
             o_pro.write({'quickbooks_id': item.Id})
             return item
         except AuthorizationException as e:
             self.refresh()
-            item.save(qb=client)
+            item.save(qb=self.get_client())
             o_pro.write({'quickbooks_id': item.Id})
             return item
         except QuickbooksException as e:
@@ -243,8 +238,6 @@ class UP5OdooQuickBooks(models.Model):
 
     def create_qb_invoice(self, o_inv):
         _logger.info('Create Invoice: ' + o_inv.name + ' - ' + str(o_inv.id))
-
-        client = self.get_client()
 
         # get invoice
         invoice = Invoice()
@@ -285,12 +278,12 @@ class UP5OdooQuickBooks(models.Model):
 
         # push
         try:
-            invoice.save(qb=client)
+            invoice.save(qb=self.get_client())
             o_inv.write({'quickbooks_id': invoice.Id})
             return invoice
         except AuthorizationException as e:
             self.refresh()
-            invoice.save(qb=client)
+            invoice.save(qb=self.get_client())
             o_inv.write({'quickbooks_id': invoice.Id})
             return invoice
         except QuickbooksException as e:
