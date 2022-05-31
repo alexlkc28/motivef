@@ -71,8 +71,6 @@ class UP5OdooQuickBooks(models.Model):
         except:
             _logger.info('Refresh token error')
 
-        _logger.info(auth_client)
-
         self.set_config('qk_access_token', auth_client.access_token)
         self.set_config('qk_refresh_token', auth_client.refresh_token)
 
@@ -352,7 +350,8 @@ class UP5OdooQuickBooks(models.Model):
         if data.get('id'):
             invoice_id = data.get('id')
             invoice = self.get_data(Invoice, invoice_id)
-            _logger.info(invoice.EInvoiceStatus)
+            _logger.info(invoice.openBalance)
+            _logger.info(invoice.totalDue)
             # o_inv = self.env['account.move'].search([('quickbooks_id', '=', invoice_id)], limit=1)
             # if o_inv:
             #     invoice = self.get_data(Invoice, invoice_id)
@@ -368,4 +367,5 @@ class UP5OdooQuickBooks(models.Model):
                 for link in line.LinkedTxn:
                     if link.TxnType == 'Invoice':
                         invoice = self.get_data(Invoice, link.TxnId)
-                        _logger.info(invoice.EInvoiceStatus)
+                        _logger.info(invoice.openBalance)
+                        _logger.info(invoice.totalDue)
