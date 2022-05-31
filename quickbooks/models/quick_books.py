@@ -334,11 +334,15 @@ class UP5OdooQuickBooks(models.Model):
     def update_o_invoice_from_payment(self, data):
         _logger.info(data)
         if data.get('id'):
+            id = data.get('id')
             try:
-                payment = Payment.get(data.get('id'), qb=self.get_client())
+                payment = Payment.get(id, qb=self.get_client())
             except AuthorizationException as e:
                 self.refresh()
-                payment = Payment.get(data.get('id'), qb=self.get_client())
+                payment = Payment.get(id, qb=self.get_client())
 
             for line in payment.Line:
-                _logger.info(line)
+                for link in line.LinkedTxn:
+                    _logger.info(link.TxnId)
+                    _logger.info(link.TxnType)
+                    _logger.info(link.TxnLineId)
