@@ -346,12 +346,17 @@ class UP5OdooQuickBooks(models.Model):
 
     def update_o_invoice(self, data):
         _logger.info(data)
+        # if data.get('operation') != 'Update':
+        #     return False
+
         if data.get('id'):
             invoice_id = data.get('id')
-            o_inv = self.env['account.move'].search([('quickbooks_id', '=', invoice_id)], limit=1)
-            if o_inv:
-                invoice = self.get_data(Invoice, invoice_id)
-                o_inv.write({'state': ''})
+            invoice = self.get_data(Invoice, invoice_id)
+            _logger.info(invoice.EInvoiceStatus)
+            # o_inv = self.env['account.move'].search([('quickbooks_id', '=', invoice_id)], limit=1)
+            # if o_inv:
+            #     invoice = self.get_data(Invoice, invoice_id)
+            #     o_inv.write({'state': ''})
 
     def update_o_invoice_from_payment(self, data):
         _logger.info(data)
