@@ -342,6 +342,21 @@ class UP5OdooQuickBooks(models.Model):
             if not o_inv.quickbooks_id:
                 self.create_qb_invoice(o_inv)
 
+    def update_o_invoice_state(self, invoice_id):
+        o_inv = self.env['account.move'].search([('quickbooks_id', '=', invoice_id)], limit=1)
+        if o_inv:
+            invoice = self.get_data(Invoice, invoice_id)
+
+            state = 'not_paid'
+            if invoice.Balance >= invoice.TotalAmt:
+                state = 'not_paid'
+            elif 0 < invoice.Balance < invoice.TotalAmt:
+                state = 'partial'
+            elif invoice.Balance <= 0:
+                state = 'paid'
+
+            o_inv.write({'state': state})
+
     def update_o_invoice(self, data):
         _logger.info(data)
         # if data.get('operation') != 'Update':
@@ -350,12 +365,9 @@ class UP5OdooQuickBooks(models.Model):
         if data.get('id'):
             invoice_id = data.get('id')
             invoice = self.get_data(Invoice, invoice_id)
-            _logger.info(invoice.openBalance)
-            _logger.info(invoice.totalDue)
-            # o_inv = self.env['account.move'].search([('quickbooks_id', '=', invoice_id)], limit=1)
-            # if o_inv:
-            #     invoice = self.get_data(Invoice, invoice_id)
-            #     o_inv.write({'state': ''})
+            _logger.info(invoice.Balance)
+            _logger.info(invoice.TotalAmt)
+            self.update_o_invoice_state(invoice_id)
 
     def update_o_invoice_from_payment(self, data):
         _logger.info(data)
@@ -367,5 +379,6 @@ class UP5OdooQuickBooks(models.Model):
                 for link in line.LinkedTxn:
                     if link.TxnType == 'Invoice':
                         invoice = self.get_data(Invoice, link.TxnId)
-                        _logger.info(invoice.openBalance)
-                        _logger.info(invoice.totalDue)
+                        _logger.info(invoice.Balance)
+                        _logger.info(invoice.TotalAmt)
+                        self.update_o_invoice_state(link.TxnId)
