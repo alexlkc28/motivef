@@ -118,6 +118,22 @@ class UP5OdooQuickBooks(models.Model):
         # compare values from step 1 and 2
         return hmac_hex_digest == decoded_hex_signature
 
+    def get_data(self, object, id):
+        try:
+            return object.get(id, qb=self.get_client())
+        except AuthorizationException as e:
+            self.refresh()
+            return object.get(id, qb=self.get_client())
+
+    def save_data(self, object):
+        try:
+            object.save(qb=self.get_client())
+            return object
+        except AuthorizationException as e:
+            self.refresh()
+            object.save(qb=self.get_client())
+            return object
+
     def get_invoices(self, options=None):
         try:
             return Invoice.all(qb=self.get_client())
@@ -330,19 +346,17 @@ class UP5OdooQuickBooks(models.Model):
 
     def update_o_invoice(self, data):
         _logger.info(data)
+        if data.get('id'):
+            invoice_id = data.get('id')
+            invoice = self.get_data(Invoice, invoice_id)
 
     def update_o_invoice_from_payment(self, data):
         _logger.info(data)
         if data.get('id'):
-            id = data.get('id')
-            try:
-                payment = Payment.get(id, qb=self.get_client())
-            except AuthorizationException as e:
-                self.refresh()
-                payment = Payment.get(id, qb=self.get_client())
+            payment_id = data.get('id')
+            payment = self.get_data(Payment, payment_id)
 
             for line in payment.Line:
                 for link in line.LinkedTxn:
-                    _logger.info(link.TxnId)
-                    _logger.info(link.TxnType)
-                    _logger.info(link.TxnLineId)
+                    if link.TxnType == 'Invoice':
+                        invoice = self.get_data(Invoice, link.TxnId)
