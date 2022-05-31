@@ -25,7 +25,7 @@ class QuickBooksWebhookController(http.Controller):
             for event in data.get('eventNotifications'):
                 if event.get('dataChangeEvent') and event.get('dataChangeEvent').get('entities'):
                     for entity in event.get('dataChangeEvent').get('entities'):
-                        if entity.get('name') == 'Invoice':
+                        if entity.get('name') == 'Invoice' and entity.get('operation') == 'Update':
                             qb.update_o_invoice(entity)
                         if entity.get('name') == 'Payment':
                             qb.update_o_invoice_from_payment(entity)

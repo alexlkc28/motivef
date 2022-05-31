@@ -332,6 +332,7 @@ class UP5OdooQuickBooks(models.Model):
         _logger.info(data)
 
     def update_o_invoice_from_payment(self, data):
+        _logger.info(data)
         if data.get('id'):
             try:
                 payment = Payment.get(data.get('id'), qb=self.get_client())
@@ -339,4 +340,5 @@ class UP5OdooQuickBooks(models.Model):
                 self.refresh()
                 payment = Payment.get(data.get('id'), qb=self.get_client())
 
-            _logger.info(payment)
+            for line in payment.Line:
+                _logger.info(line)
