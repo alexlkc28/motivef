@@ -365,8 +365,6 @@ class UP5OdooQuickBooks(models.Model):
         if data.get('id'):
             invoice_id = data.get('id')
             invoice = self.get_data(Invoice, invoice_id)
-            _logger.info(invoice.Balance)
-            _logger.info(invoice.TotalAmt)
             self.update_o_invoice_state(invoice_id)
 
     def update_o_invoice_from_payment(self, data):
@@ -379,6 +377,4 @@ class UP5OdooQuickBooks(models.Model):
                 for link in line.LinkedTxn:
                     if link.TxnType == 'Invoice':
                         invoice = self.get_data(Invoice, link.TxnId)
-                        _logger.info(invoice.Balance)
-                        _logger.info(invoice.TotalAmt)
                         self.update_o_invoice_state(link.TxnId)
